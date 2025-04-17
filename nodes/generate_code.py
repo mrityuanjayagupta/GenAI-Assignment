@@ -35,8 +35,9 @@ def generate_code_tool(api_endpoints):
         Write the code in single line string using \\n for changing the line
         Format the output like this:
         {{
-            "complete path of file starting from project root": "generated code for the file",
-            "complete path of other file starting from project root": "generated code for the other file"
+            "project_root/app/api/routes/filename": "generated code for the route file",
+            "project_root/app/models/filename": "generated code for the models file"
+            "project_root/app/services/filename": "generated code for services file"
         }}
         
         API Routes are as follows:
@@ -50,10 +51,10 @@ def generate_code_tool(api_endpoints):
     message = prompt.format(api_endpoints = api_endpoints)
     response = llama_3.invoke(message)
     print(response.content)
-    # json_response = json.loads(response.content)
-    # for route_file, code in json_response.items():
-    #     with open(f"project_root/app/api/routes/{route_file}", "w") as f:
-    #         f.write(code)
+    json_response = json.loads(response.content)
+    for file_path, code in json_response.items():
+        with open(file_path, "w") as f:
+            f.write(code)
     return response.content
 
 
