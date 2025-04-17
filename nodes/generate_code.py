@@ -15,7 +15,7 @@ def generate_code_tool(api_endpoints):
         api_endpoints: list of all api routes
 
     Returns:
-        str: json string fastapi code for all api routes
+        str: string fastapi code for all api routes without backticks
     """ 
     
     prompt = PromptTemplate.from_template(
@@ -26,7 +26,7 @@ def generate_code_tool(api_endpoints):
         - A pydantic + SQLAlchemy model inside models/
         - A Service file for business logic inside services/
         
-        Note: The output should be a JSON String will the file name as key and the code as the value
+        Note: The output should be a JSON String with the file name as key and the code as the value
         Write the code in single line string using \\n for changing the line
         Format the output like this in the same sequence:
         {{
@@ -40,12 +40,11 @@ def generate_code_tool(api_endpoints):
         {api_endpoints}
 
         Ensure that the code follows best practices for fastapi projects.
-        Note: Do not use backticks for the output.
+        Note: STRICTLY DO NOT USE BACKTICKS AROUND THE OUTPUT
         """
     )
     message = prompt.format(api_endpoints = api_endpoints)
     response = llama_3.invoke(message)
-    print("responseeeeeee = ", response)
     json_response = json.loads(response.content)
     for file_path, code in json_response.items():
         with open(file_path, "w") as f:

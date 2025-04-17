@@ -53,7 +53,7 @@ def generate_project_structure_tool():
 
         Strictly provide the extracted information in json string format as given below:
         folder_structure: dictionary containing only the folder structure (no files)
-        dependencies: [list of dependencies like python, fastapi, pydantic, sqlAlchemy, pytest] 
+        dependencies: [list of dependencies like fastapi, pydantic, sqlAlchemy, pytest] 
         Strictly include all the python libraries which needs to be installed for development as well as testing]
         Note: Provide only string as the output. No extra text is required.
         Do not use backticks for the output.
@@ -62,7 +62,6 @@ def generate_project_structure_tool():
     message = prompt.format()
     response = llama_3.invoke(message)
     json_response = response.content
-    print("82189662821",json_response)
     json_response = json.loads(json_response)
     create_folder_structure(json_response["folder_structure"])
     open("project_root/app/database.py", "a").close()
