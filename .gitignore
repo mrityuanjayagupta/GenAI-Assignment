@@ -1,5 +1,6 @@
 .venv/
-.venv2/
 
 __pycache__/
 *.pyc
+
+srs.docx

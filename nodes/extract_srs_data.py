@@ -33,7 +33,7 @@ def extract_functional_requirements(srs_content):
             models: [list of all models - each model should be in json having table_name, relationships, constraints]
             dependencies: [list of all dependencies which are required to be installed]
             functionalities: [list of all key functionalities]
-        Note: Provide only json as the output. No extra text is required.
+        Note: Provide only json as the output. No extra text is required. Do not use backticks for the output/ 
         """
     )
 

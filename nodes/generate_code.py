@@ -17,12 +17,8 @@ def generate_code_tool(api_endpoints):
     Returns:
         str: json string fastapi code for all api routes
     """
-
-    routes = {}
-    for endpoint in api_endpoints:
-        route_name = endpoint.split()[1].strip('/').replace("/", "_")
-        routes[route_name] = f"{route_name}.py"
-        
+    print(1111111111111) 
+    
     prompt = PromptTemplate.from_template(
         """
         Given the following api routes, generate FastAPI code for each route file
@@ -47,7 +43,7 @@ def generate_code_tool(api_endpoints):
         Note: Do not use backticks for the output.
         """
     )
-
+    print(222222222222222222) 
     message = prompt.format(api_endpoints = api_endpoints)
     response = llama_3.invoke(message)
     json_response = json.loads(response.content)

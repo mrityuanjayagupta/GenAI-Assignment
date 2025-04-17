@@ -33,37 +33,36 @@ def generate_project_structure_tool():
     prompt = PromptTemplate.from_template(
         """
         Analyze the extracted details from SRS and return file names of models and routes.
-    The folder structure is supposed to be in the below format:
-    project_root/
-    │── app/
-    │   ├── api/
-    │   │   ├── routes/
-    │   │   │   └── __init__.py
-    │   ├── models/
-    │   │   └── __init__.py
-    │   ├── services/
-    │   ├── database.py
-    │   ├── main.py
-    │── tests/
-    │── Dockerfile
-    │── requirements.txt
-    │── .env
-    │── README.md
+        The folder structure is supposed to be in the below format:
+        project_root/
+        │── app/
+        │   ├── api/
+        │   │   ├── routes/
+        │   │   │   └── __init__.py
+        │   ├── models/
+        │   │   └── __init__.py
+        │   ├── services/
+        │   ├── database.py
+        │   ├── main.py
+        │── tests/
+        │── Dockerfile
+        │── requirements.txt
+        │── .env
+        │── README.md
 
 
-    Strictly provide the extracted information in json string format as given below:
-    folder_structure: dictionary containing only the folder structure (no files)
-    # route_file_names: [scan the SRS and find the list of all route files such that each route file will have all routes of same model]
-    # model_file_names: [scan the SRS and find the list of all model files such that each model file will have one model]
-    dependencies: scan the SRS and create a string of all dependencies with their versions which are required to be installed. 
-    Note: The format for the dependencies will be dependency1===version1\ndependency2===version2 and so on
-    Note: Provide only string as the output. No extra text is required.
-    Do not use backticks for the output.
+        Strictly provide the extracted information in json string format as given below:
+        folder_structure: dictionary containing only the folder structure (no files)
+        dependencies: [list of dependencies like python, fastapi, pydantic, sqlAlchemy, pytest] 
+        Strictly include all the python libraries which needs to be installed for development as well as testing]
+        Note: Provide only string as the output. No extra text is required.
+        Do not use backticks for the output.
     """
     )
     message = prompt.format()
     response = llama_3.invoke(message)
     json_response = response.content
+    print("82189662821",json_response)
     json_response = json.loads(json_response)
     create_folder_structure(json_response["folder_structure"])
     open("project_root/app/database.py", "a").close()
@@ -73,8 +72,9 @@ def generate_project_structure_tool():
     open("project_root/README.md", "a").close()
 
     with open("project_root/requirements.txt", "w") as f:
-        f.write(json_response["dependencies"])
-    pip_executable = ".venv2\\Scripts\\pip.exe"
+        for d in json_response["dependencies"]:
+            f.write(d + "\n")
+    pip_executable = ".venv\\Scripts\\pip.exe"
     subprocess.run([pip_executable, "install", "-r", "project_root/requirements.txt"])
     return response.content
 

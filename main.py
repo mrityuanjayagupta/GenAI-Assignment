@@ -1,5 +1,7 @@
+from docx import Document
 from typing import TypedDict, Annotated
 from langchain_core.messages import AnyMessage, HumanMessage
+from groq import Groq
 from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -46,30 +48,37 @@ builder.add_edge("generate_code_tool", END)
 graph = builder.compile()
 
 
-messages = [
-    HumanMessage(
-        content='''
-    """This SRS document includes:
-    1. API Endpoints: 
-        - GET /users
-        - POST /users
-        - PUT /users/{id}
+def read_srs_from_docx(file_path):
+    doc = Document(file_path)
+    full_text = []
 
-    2. Backend Logic: 
-        - Users must be unique
-        - Compute total order value
+    for paragraph in doc.paragraphs:
+        full_text.append(paragraph.text)
 
-    3. Database Schema
-        - Users, tables, Orders table
-        - One to many relationship between Users and Orders
+    return "\n".join(full_text)
 
-    4. Authentivation Requirements: 
-        - Role-based authentication (Admin, User)    
-        
-    """
-    '''
-    )
-]
+llama_3 = Groq()
+srs_content = read_srs_from_docx("srs.docx")
+chat_completion = llama_3.chat.completions.create(
+    messages = [
+        {
+            "role":"user",
+            "content": """Extract the following key information from the following SRS Document:
+            1. API Endpoints (GET, POST, PUT, PATCH, DELETE) and their parameters.
+            2. Backend Logic (business rules, computations)
+            3. Database Schema (tables, relationships, constraints)
+            4. Authentication and Authorization requirements (roles, permisssions).
+
+            Summarize and Structure the above information in a clear and concise manner for each component.
+            Here is the SRS Document: {srs_content}
+            """.format(srs_content=srs_content)
+        }
+    ], 
+    model="llama-3.3-70b-versatile",
+    temperature=0
+)
+
+messages = [HumanMessage(content=chat_completion.choices[0].message.content)]
 
 final_state = graph.invoke({"messages": messages})
 for m in final_state["messages"]:
