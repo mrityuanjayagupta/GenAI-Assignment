@@ -33,9 +33,8 @@ def extract_functional_requirements(srs_content):
             models: [list of all models - each model should be in json having table_name, relationships, constraints]
             dependencies: [list of all dependencies which are required to be installed]
             functionalities: [list of all key functionalities]
-
-        Provide only json as the output. No extra text is required.
-    """
+        Note: Provide only json as the output. No extra text is required.
+        """
     )
 
     message = prompt.format(srs_content=srs_content)

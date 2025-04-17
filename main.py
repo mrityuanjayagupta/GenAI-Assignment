@@ -5,14 +5,14 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from nodes.extract_srs_data import extract_srs_data, extract_functional_requirements
-
-
+from nodes.generate_project_structure import (
+    generate_project_structure,
+    generate_project_structure_tool,
+)
 
 
 class GraphState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
-
-
 
 
 # Build Graph
@@ -20,15 +20,25 @@ builder = StateGraph(MessagesState)
 
 builder.add_node("extract_srs_data", extract_srs_data)
 builder.add_node("tools", ToolNode([extract_functional_requirements]))
+builder.add_node("generate_project_structure", generate_project_structure)
+builder.add_node(
+    "generate_project_structure_tool", ToolNode([generate_project_structure_tool])
+)
+
 
 builder.add_edge(START, "extract_srs_data")
-builder.add_conditional_edges("extract_srs_data", tools_condition)
+builder.add_edge("extract_srs_data", "tools")
+builder.add_edge("tools", "generate_project_structure")
+builder.add_edge("generate_project_structure", "generate_project_structure_tool")
 builder.add_edge("tools", END)
+
 
 graph = builder.compile()
 
 
-messages = [HumanMessage(content = '''
+messages = [
+    HumanMessage(
+        content='''
     """This SRS document includes:
     1. API Endpoints: 
         - GET /users
@@ -48,7 +58,8 @@ messages = [HumanMessage(content = '''
         
     """
     '''
-)]
+    )
+]
 
 final_state = graph.invoke({"messages": messages})
 for m in final_state["messages"]:
