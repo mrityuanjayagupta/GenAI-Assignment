@@ -16,8 +16,7 @@ def generate_code_tool(api_endpoints):
 
     Returns:
         str: json string fastapi code for all api routes
-    """
-    print(1111111111111) 
+    """ 
     
     prompt = PromptTemplate.from_template(
         """
@@ -29,11 +28,12 @@ def generate_code_tool(api_endpoints):
         
         Note: The output should be a JSON String will the file name as key and the code as the value
         Write the code in single line string using \\n for changing the line
-        Format the output like this:
+        Format the output like this in the same sequence:
         {{
+            "project_root/app/main.py": "generated code for main.py where our app is initialized in FastAPI",
             "project_root/app/api/routes/filename": "generated code for the route file",
             "project_root/app/models/filename": "generated code for the models file"
-            "project_root/app/services/filename": "generated code for services file"
+            "project_root/app/services/filename": "generated code for services file",
         }}
         
         API Routes are as follows:
@@ -43,9 +43,9 @@ def generate_code_tool(api_endpoints):
         Note: Do not use backticks for the output.
         """
     )
-    print(222222222222222222) 
     message = prompt.format(api_endpoints = api_endpoints)
     response = llama_3.invoke(message)
+    print("responseeeeeee = ", response)
     json_response = json.loads(response.content)
     for file_path, code in json_response.items():
         with open(file_path, "w") as f:
