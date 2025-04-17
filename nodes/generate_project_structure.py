@@ -1,4 +1,3 @@
-
 import os
 import json
 import subprocess
@@ -8,21 +7,18 @@ from langchain_core.tools import tool
 
 llama_3 = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
 
+
 def create_folder_structure(dic):
     def one_directory(dic, path):
         for name, info in dic.items():
             next_path = path + "/" + name
             if isinstance(info, dict):
-                if(next_path[0] == '/'):
+                if next_path[0] == "/":
                     next_path = next_path[1:]
-                os.mkdir(next_path) 
+                os.mkdir(next_path)
                 one_directory(info, next_path)
-    one_directory(dic, '')
 
-
-def create_virtual_environment():
-    subprocess.run(["python", "-m", "venv", "project_root/.venv"])
-
+    one_directory(dic, "")
 
 
 @tool
@@ -70,19 +66,21 @@ def generate_project_structure_tool():
     json_response = response.content
     json_response = json.loads(json_response)
     create_folder_structure(json_response["folder_structure"])
-    open("project_root/app/database.py", 'a').close()
-    open("project_root/app/main.py", 'a').close()
-    open("project_root/requirements.txt", 'a').close()
-    open("project_root/.env", 'a').close()
-    open("project_root/README.md", 'a').close()
-    
+    open("project_root/app/database.py", "a").close()
+    open("project_root/app/main.py", "a").close()
+    open("project_root/requirements.txt", "a").close()
+    open("project_root/.env", "a").close()
+    open("project_root/README.md", "a").close()
+
     with open("project_root/requirements.txt", "w") as f:
         f.write(json_response["dependencies"])
-    create_virtual_environment()
+    pip_executable = ".venv2\\Scripts\\pip.exe"
+    subprocess.run([pip_executable, "install", "-r", "project_root/requirements.txt"])
     return response.content
 
 
 llama_3_with_tools = llama_3.bind_tools([generate_project_structure_tool])
+
 
 # Node
 def generate_project_structure(state):
