@@ -11,7 +11,7 @@ def generate_unit_tests_tool(api_endpoints):
         Generate pytest based unit testcases for all api routes
 
     Args:
-        routes: list of all api routes
+        api_endpoints: list of all api routes
 
     Returns:
         str: pytest based unit testcases
