@@ -1,6 +1,7 @@
 
 import os
 import json
+import subprocess
 from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import tool
@@ -17,6 +18,12 @@ def create_folder_structure(dic):
                 os.mkdir(next_path) 
                 one_directory(info, next_path)
     one_directory(dic, '')
+
+
+def create_virtual_environment():
+    subprocess.run(["python", "-m", "venv", "project_root/.venv"])
+
+
 
 @tool
 def generate_project_structure_tool():
@@ -50,8 +57,10 @@ def generate_project_structure_tool():
 
     Strictly provide the extracted information in json string format as given below:
     folder_structure: dictionary containing only the folder structure (no files)
-    route_file_names: [scan the SRS and find the list of all route files such that each route file will have all routes of same model]
-    model_file_names: [scan the SRS and find the list of all model files such that each model file will have one model]
+    # route_file_names: [scan the SRS and find the list of all route files such that each route file will have all routes of same model]
+    # model_file_names: [scan the SRS and find the list of all model files such that each model file will have one model]
+    dependencies: scan the SRS and create a string of all dependencies with their versions which are required to be installed. 
+    Note: The format for the dependencies will be dependency1===version1\ndependency2===version2 and so on
     Note: Provide only string as the output. No extra text is required.
     Do not use backticks for the output.
     """
@@ -60,14 +69,16 @@ def generate_project_structure_tool():
     response = llama_3.invoke(message)
     json_response = response.content
     json_response = json.loads(json_response)
-    print(json_response["folder_structure"])
     create_folder_structure(json_response["folder_structure"])
     open("project_root/app/database.py", 'a').close()
     open("project_root/app/main.py", 'a').close()
     open("project_root/requirements.txt", 'a').close()
     open("project_root/.env", 'a').close()
     open("project_root/README.md", 'a').close()
-
+    
+    with open("project_root/requirements.txt", "w") as f:
+        f.write(json_response["dependencies"])
+    create_virtual_environment()
     return response.content
 
 

@@ -50,7 +50,6 @@ def generate_code_tool(api_endpoints):
 
     message = prompt.format(api_endpoints = api_endpoints)
     response = llama_3.invoke(message)
-    print(response.content)
     json_response = json.loads(response.content)
     for file_path, code in json_response.items():
         with open(file_path, "w") as f:
