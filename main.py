@@ -1,60 +1,35 @@
-from langgraph.graph import StateGraph, START, END
-from groq import Groq
+from typing import TypedDict, Annotated
+from langchain_core.messages import AnyMessage, HumanMessage
+from langgraph.graph.message import add_messages
+from langgraph.graph import StateGraph, MessagesState, START, END
+from langgraph.prebuilt import ToolNode, tools_condition
+
+from nodes.extract_srs_data import extract_srs_data, extract_functional_requirements
 
 
-class GraphState(dict):
-    pass
 
 
-def extract_srs_data(state):
-    srs_content = state.get("srs_document", "")
-
-    if not srs_content:
-        raise ValueError("SRS Document is empty or missing.")
-    
-    function_requirements = extract_functional_requirements(srs_content)
-
-    state["functional_requirements"] = function_requirements
-    return state
+class GraphState(TypedDict):
+    messages: Annotated[list[AnyMessage], add_messages]
 
 
-def extract_functional_requirements(srs_content):
-    prompt = f"""
-    Analyze the following Software Requirements Specification (SRS) Document and extract the following:
-    1. API Endpoints (GET, POST, PUT, PATCH, DELETE) and their parameters.
-    2. Backend Logic (business rules, computations)
-    3. Database Schema (tables, relationships, constraints)
-    4. Authentication and Authorization requirements (roles, permisssions).
-
-    Here is the SRS document: 
-    {srs_content}
-
-    Please provide the extracted information in structured format
-    """
-    client = Groq()
-    completion = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        temperature=0
-    )
-    print(completion.choices[0].message.content)
 
 
-graph_builder = StateGraph(GraphState)
-graph_builder.add_node("extract_requirements", extract_functional_requirements)
-graph_builder.add_edge(START, "extract_requirements")
-graph_builder.add_edge("extract_requirements", END)
+# Build Graph
+builder = StateGraph(MessagesState)
 
-graph = graph_builder.compile()
+builder.add_node("extract_srs_data", extract_srs_data)
+builder.add_node("tools", ToolNode([extract_functional_requirements]))
+
+builder.add_edge(START, "extract_srs_data")
+builder.add_conditional_edges("extract_srs_data", tools_condition)
+builder.add_edge("tools", END)
+
+graph = builder.compile()
 
 
-initial_state = GraphState({
-    "srs_document": """This SRS document includes:
+messages = [HumanMessage(content = '''
+    """This SRS document includes:
     1. API Endpoints: 
         - GET /users
         - POST /users
@@ -72,7 +47,9 @@ initial_state = GraphState({
         - Role-based authentication (Admin, User)    
         
     """
-})
+    '''
+)]
 
-final_state = graph.invoke(initial_state)
-print(final_state)
+final_state = graph.invoke({"messages": messages})
+for m in final_state["messages"]:
+    m.pretty_print()
