@@ -9,6 +9,7 @@ from nodes.generate_project_structure import (
     generate_project_structure,
     generate_project_structure_tool,
 )
+from nodes.generate_unit_tests import generate_unit_tests, generate_unit_tests_tool
 
 
 class GraphState(TypedDict):
@@ -24,13 +25,17 @@ builder.add_node("generate_project_structure", generate_project_structure)
 builder.add_node(
     "generate_project_structure_tool", ToolNode([generate_project_structure_tool])
 )
+builder.add_node("generate_unit_tests", generate_unit_tests)
+builder.add_node("generate_unit_tests_tool", ToolNode([generate_unit_tests_tool]))
 
 
 builder.add_edge(START, "extract_srs_data")
 builder.add_edge("extract_srs_data", "tools")
 builder.add_edge("tools", "generate_project_structure")
 builder.add_edge("generate_project_structure", "generate_project_structure_tool")
-builder.add_edge("tools", END)
+builder.add_edge("generate_project_structure_tool", "generate_unit_tests")
+builder.add_edge("generate_unit_tests", "generate_unit_tests_tool")
+builder.add_edge("generate_unit_tests_tool", END)
 
 
 graph = builder.compile()
