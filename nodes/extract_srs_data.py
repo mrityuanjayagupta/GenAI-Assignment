@@ -19,16 +19,22 @@ def extract_functional_requirements(srs_content):
 
     prompt = PromptTemplate.from_template(
         """
-    Strictly Analyze the following Software Requirements Specification (SRS) Document and extract the following:
-    1. API Endpoints (GET, POST, PUT, PATCH, DELETE) and their parameters.
-    2. Backend Logic (business rules, computations)
-    3. Database Schema (tables, relationships, constraints)
-    4. Authentication and Authorization requirements (roles, permisssions).
+        Strictly Analyze the following Software Requirements Specification (SRS) Document and extract the following:
+        1. API Endpoints (GET, POST, PUT, PATCH, DELETE) and their parameters.
+        2. Backend Logic (business rules, computations)
+        3. Database Schema (tables, relationships, constraints)
+        4. Authentication and Authorization requirements (roles, permisssions).
 
-    Here is the SRS document: 
-    {srs_content}
+        Here is the SRS document: 
+        {srs_content}
 
-    Please provide the extracted information in structured format
+        Strictly provide the extracted information in json format as given below:
+            routes: [list of all routes/apis - each route should be in json having request_type, request_url, paramters, headers and body],
+            models: [list of all models - each model should be in json having table_name, relationships, constraints]
+            dependencies: [list of all dependencies which are required to be installed]
+            functionalities: [list of all key functionalities]
+
+        Provide only json as the output. No extra text is required.
     """
     )
 
