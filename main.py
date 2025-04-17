@@ -5,6 +5,7 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from nodes.extract_srs_data import extract_srs_data, extract_functional_requirements
+from nodes.generate_code import generate_code, generate_code_tool
 from nodes.generate_project_structure import (
     generate_project_structure,
     generate_project_structure_tool,
@@ -27,6 +28,8 @@ builder.add_node(
 )
 builder.add_node("generate_unit_tests", generate_unit_tests)
 builder.add_node("generate_unit_tests_tool", ToolNode([generate_unit_tests_tool]))
+builder.add_node("generate_code", generate_code)
+builder.add_node("generate_code_tool", ToolNode([generate_code_tool]))
 
 
 builder.add_edge(START, "extract_srs_data")
@@ -35,7 +38,9 @@ builder.add_edge("tools", "generate_project_structure")
 builder.add_edge("generate_project_structure", "generate_project_structure_tool")
 builder.add_edge("generate_project_structure_tool", "generate_unit_tests")
 builder.add_edge("generate_unit_tests", "generate_unit_tests_tool")
-builder.add_edge("generate_unit_tests_tool", END)
+builder.add_edge("generate_unit_tests_tool", "generate_code")
+builder.add_edge("generate_code", "generate_code_tool")
+builder.add_edge("generate_code_tool", END)
 
 
 graph = builder.compile()

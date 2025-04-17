@@ -16,7 +16,6 @@ def generate_unit_tests_tool(api_endpoints):
     Returns:
         str: pytest based unit testcases
     """
-
     prompt = PromptTemplate.from_template(
         """
         Generate pytest-based test cases for the following endpoints:
