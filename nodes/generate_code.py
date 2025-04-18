@@ -26,6 +26,8 @@ def generate_code_tool(api_endpoints):
         - A pydantic + SQLAlchemy model inside models/
         - A Service file for business logic inside services/
         
+        In every module directory (models/, services/, routes/, api/, and app/), include an __init__.py file that imports all necessary classes and functions used outside the module.
+        Each __init__.py should explicitly import (i.e., from .file import ClassName) all relevant classes/functions defined in sibling files of that module that are used outside of that module.
         Note: The output should be a JSON String with the file name as key and the code as the value
         Write the code in single line string using \\n for changing the line
         Format the output like this in the same sequence:
@@ -34,6 +36,11 @@ def generate_code_tool(api_endpoints):
             "project_root/app/api/routes/filename": "generated code for the route file",
             "project_root/app/models/filename": "generated code for the models file"
             "project_root/app/services/filename": "generated code for services file",
+            "project_root/app/api/routes/__init__.py": "generated code for __init__.py with all route imports",
+            "project_root/app/api/__init__.py": "generated code for api/__init__.py importing routes",  
+            "project_root/app/models/__init__.py": "generated code for models/__init__.py importing all models",
+            "project_root/app/services/__init__.py": "generated code for services/__init__.py importing all services",  
+            "project_root/app/__init__.py": "generated code for app/__init__.py importing api, models, and services",
         }}
         
         API Routes are as follows:

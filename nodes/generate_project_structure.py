@@ -53,7 +53,7 @@ def generate_project_structure_tool():
 
         Strictly provide the extracted information in json string format as given below:
         folder_structure: dictionary containing only the folder structure (no files)
-        dependencies: [list of dependencies like fastapi, pydantic, sqlAlchemy, pytest] 
+        dependencies: [list of dependencies like fastapi[standard], pydantic, SQLAlchemy, pytest] 
         Strictly include all the python libraries which needs to be installed for development as well as testing]
         Note: Provide only string as the output. No extra text is required.
         Do not use backticks for the output.
@@ -64,11 +64,7 @@ def generate_project_structure_tool():
     json_response = response.content
     json_response = json.loads(json_response)
     create_folder_structure(json_response["folder_structure"])
-    open("project_root/app/database.py", "a").close()
-    open("project_root/app/main.py", "a").close()
     open("project_root/requirements.txt", "a").close()
-    open("project_root/.env", "a").close()
-    open("project_root/README.md", "a").close()
 
     with open("project_root/requirements.txt", "w") as f:
         for d in json_response["dependencies"]:
