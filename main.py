@@ -16,6 +16,15 @@ from nodes.generate_project_structure import (
 from nodes.generate_unit_tests import generate_unit_tests, generate_unit_tests_tool
 from nodes.run_tests import run_tests
 
+import os
+from dotenv import find_dotenv, load_dotenv
+
+load_dotenv(find_dotenv())
+os.environ["LANGCHAIN_API_KEY"] = str(os.getenv("LANGCHAIN_API_KEY"))
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
+os.environ["LANGCHAIN_PROJECT"] = "genai-assignment"
+
 
 class GraphState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
@@ -63,12 +72,13 @@ def read_srs_from_docx(file_path):
 
     return "\n".join(full_text)
 
+
 llama_3 = Groq()
 srs_content = read_srs_from_docx("srs.docx")
 chat_completion = llama_3.chat.completions.create(
-    messages = [
+    messages=[
         {
-            "role":"user",
+            "role": "user",
             "content": """Extract the following key information from the following SRS Document:
             1. API Endpoints (GET, POST, PUT, PATCH, DELETE) and their parameters.
             2. Backend Logic (business rules, computations)
@@ -77,11 +87,13 @@ chat_completion = llama_3.chat.completions.create(
 
             Summarize and Structure the above information in a clear and concise manner for each component.
             Here is the SRS Document: {srs_content}
-            """.format(srs_content=srs_content)
+            """.format(
+                srs_content=srs_content
+            ),
         }
-    ], 
+    ],
     model="llama-3.3-70b-versatile",
-    temperature=0
+    temperature=0,
 )
 
 messages = [HumanMessage(content=chat_completion.choices[0].message.content)]
